@@ -1,86 +1,78 @@
-import os
-from data_process import (
-    producao_clear,
-    processamento_clear,
-    comercializacao_clear,
-    importacao_clear,
-    exportacao_clear
-)
+# load_all.py
+import pandas as pd
+from models.producao_model import ProducaoModel
+from models.processamento_model import ProcessamentoModel
+from models.comercializacao_model import ComercializacaoModel
+from models.importacao_model import ImportacaoModel
+from models.exportacao_model import ExportacaoModel
 
-import time
-import sys
+# Modifique este caminho para onde estão os seus CSVs
+CAMINHO_CSV = "./data_process/data_scraping/producao/Producao.csv"
 
-def ampola_loading(segundos: int):
-    simbolos = ['⏳', '⌛', '⏱️', '🕰️']  # Ampola, relógios
-    print(f"\n⏳ Aguardando {segundos} segundos...")
-    for i in range(segundos):
-        simbolo = simbolos[i % len(simbolos)]
-        sys.stdout.write(f"\r{simbolo} Esperando... {segundos - i}s")
-        sys.stdout.flush()
-        time.sleep(1)
-    #sys.stdout.write("\r✅ Pronto!              \n")
-#Dados de Producao
-def salvar_dados_prod():
-    CAMINHO_CSV = "./data_process/data_scraping/producao/Producao.csv"
-    if not os.path.exists(CAMINHO_CSV):
-        print(f"❌ Arquivo não encontrado: {CAMINHO_CSV}")
-    else:
-        df_final = producao_clear.limpar_data_frame(CAMINHO_CSV)
-        if not df_final.empty:
-            producao_clear.salvar_no_banco(df_final)
-        else:
-            print("⚠️ Nenhum dado processado.")
+def load_producao_data(session):
+    df = pd.read_csv(f"{CSV_DIR}/producao/Producao.csv")
+    for _, row in df.iterrows():
+        model = ProducaoModel(
+            ano=row["ano"],
+            produto=row["produto"],
+            quantidade=row["quantidade"],
+            valor=row["valor"],
+        )
+        session.add(model)
+    session.commit()
 
-# Dados Processamento
-def salvar_dados_proc():
-    # Caminho para o arquivo CSV
-    CAMINHO_CSV = "./data_process/data_scraping/processamento/ProcessaViniferas.csv"
+def load_processamento_data(session):
+    df = pd.read_csv(f"{CSV_DIR}/processamento/Processamento.csv")
+    for _, row in df.iterrows():
+        model = ProcessamentoModel(
+            ano=row["ano"],
+            produto=row["produto"],
+            quantidade=row["quantidade"],
+            valor=row["valor"],
+        )
+        session.add(model)
+    session.commit()
 
-    if not os.path.exists(CAMINHO_CSV):
-        print(f"❌ Arquivo não encontrado: {CAMINHO_CSV}")
-    else:
-        df_final = processamento_clear.limpar_data_frame(CAMINHO_CSV)
-        if not df_final.empty:
-            processamento_clear.salvar_no_banco(df_final)
-        else:
-            print("⚠️ Nenhum dado processado.")
+def load_comercializacao_data(session):
+    df = pd.read_csv(f"{CSV_DIR}/comercializacao/Comercializacao.csv")
+    for _, row in df.iterrows():
+        model = ComercializacaoModel(
+            ano=row["ano"],
+            produto=row["produto"],
+            quantidade=row["quantidade"],
+            valor=row["valor"],
+        )
+        session.add(model)
+    session.commit()
 
-def salvar_dados_com():
-    # Caminho para o arquivo CSV
-    CAMINHO_CSV = "./data_process/data_scraping/comercializacao/Comercio.csv"
-    if not os.path.exists(CAMINHO_CSV):
-        print(f"❌ Arquivo não encontrado: {CAMINHO_CSV}")
-    else:
-        df_final = comercializacao_clear.limpar_data_frame(CAMINHO_CSV)
-        if not df_final.empty:
-            comercializacao_clear.salvar_no_banco(df_final)
-        else:
-            print("⚠️ Nenhum dado processado.")
+def load_importacao_data(session):
+    df = pd.read_csv(f"{CSV_DIR}/importacao/Importacao.csv")
+    for _, row in df.iterrows():
+        model = ImportacaoModel(
+            ano=row["ano"],
+            produto=row["produto"],
+            quantidade=row["quantidade"],
+            valor=row["valor"],
+        )
+        session.add(model)
+    session.commit()
 
-def salvar_dados_import():
-    importacao_clear.limpar_dataframe()
-def salvar_dados_export():
-    exportacao_clear.limpar_dataframe()
+def load_exportacao_data(session):
+    df = pd.read_csv(f"{CSV_DIR}/exportacao/Exportacao.csv")
+    for _, row in df.iterrows():
+        model = ExportacaoModel(
+            ano=row["ano"],
+            produto=row["produto"],
+            quantidade=row["quantidade"],
+            valor=row["valor"],
+        )
+        session.add(model)
+    session.commit()
 
-def executar_tudo():
-    print("\n🚀 Iniciando carregamento total dos dados no banco...\n")
-
-
-    print("📂 Salvando os dados de produção...")
-    salvar_dados_prod()
-
-    print("\n📂 Salvando os dados de processamento:")
-    salvar_dados_proc()
-
-    print("\n📂 Salvando os dados de comercialização:")
-    salvar_dados_com()
-
-    print("\n📂 Salvando os dados de Importação:")
-    salvar_dados_import()
-
-    print("\n📂 Salvando os dados de Exportação:")
-    salvar_dados_export()
-
-    print("\n✅ Finalizado!")
-
+def main(session):
+    load_producao_data(session)
+    load_processamento_data(session)
+    load_comercializacao_data(session)
+    load_importacao_data(session)
+    load_exportacao_data(session)
 
