@@ -1,24 +1,45 @@
+# main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
 
+# suas rotas
 from api.v1.api import api_router
-from core.database import init_db
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # cria as tabelas se não existirem
-    await init_db()
-    yield
+# Base compartilhado e engine já criados no seu projeto
+from core.settings import DBBaseModel
+from core.database import engine  # usa o MESMO engine do projeto
 
-app = FastAPI(title="API - Tech Challenge_01 - Dados Vitivinicultura", lifespan=lifespan)
+# <<< IMPORTANTE: importe os modelos ANTES de create_all >>>
+# isso registra todas as tabelas no metadata
+import models.__all_models  # não precisa usar, só importar
+
+app = FastAPI(title='API - Tech Challenge_01 - Dados Vitivinicultura')
+
+# inclui suas rotas
 app.include_router(api_router, prefix="/api/v1")
 
+# CORS liberado (ajuste se quiser restringir)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
+# endpoint raiz (opcional)
 @app.get("/")
-async def def_root():
+async def root():
     return {"mensagem": "Bem Vindo"}
+
+# cria as tabelas no startup (somente se ainda não existirem)
+@app.on_event("startup")
+async def on_startup():
+    # como o engine é assíncrono, use run_sync para create_all síncrono
+    async with engine.begin() as conn:
+        await conn.run_sync(DBBaseModel.metadata.create_all)
+
+# execução local (Render não usa este bloco; ele chama `uvicorn main:app`)
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=10000, log_level='info', reload=True)
