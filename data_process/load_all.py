@@ -7,7 +7,7 @@ from models.importacao_model import ImportacaoModel
 from models.exportacao_model import ExportacaoModel
 
 # Modifique este caminho para onde estão os seus CSVs
-CAMINHO_CSV = "./data_process/data_scraping/producao/Producao.csv"
+CAMINHO_CSV = "./data_process/data_scraping"
 
 def load_producao_data(session):
     df = pd.read_csv(f"{CSV_DIR}/producao/Producao.csv")
