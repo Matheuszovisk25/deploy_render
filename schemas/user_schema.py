@@ -1,36 +1,31 @@
 from typing import Optional
-
 from pydantic import BaseModel, EmailStr
 
-
-class UserSchema(BaseModel):
-    id: Optional[int] = None
+# ===== Saída (response) =====
+class UserOut(BaseModel):
+    id: int
     name: str
-    surname: str
+    surname: Optional[str] = None
     email: EmailStr
-    #password: str
-    is_admin: bool = False
-    is_active: bool = True
+    is_active: bool
 
-    model_config = {
-        "from_attributes": True
-    }
+    model_config = {"from_attributes": True}
 
-
-class UserSchemaCreate(UserSchema):
+# ===== Entrada (create) =====
+class UserCreate(BaseModel):
+    name: str
+    surname: Optional[str] = None
+    email: EmailStr
     password: str
 
-
-class UserSchemaUp(BaseModel):
+# ===== Entrada (update) =====
+class UserUpdate(BaseModel):
     name: Optional[str] = None
     surname: Optional[str] = None
     email: Optional[EmailStr] = None
     password: Optional[str] = None
-    is_admin: Optional[bool] = None
     is_active: Optional[bool] = None
+    # is_admin: só mexa em rota exclusiva de admin (opcional)
+    # is_admin: Optional[bool] = None
 
-    model_config = {
-        "from_attributes": True
-    }
-
-
+    model_config = {"from_attributes": True}
