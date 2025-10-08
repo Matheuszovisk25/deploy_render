@@ -26,11 +26,9 @@ class UserSchemaUp(BaseModel):
     surname: Optional[str] = None
     email: Optional[EmailStr] = None
     password: Optional[str] = None
-    #is_admin: Optional[bool] = None
+    is_admin: Optional[bool] = None
     is_active: Optional[bool] = None
 
     model_config = {
         "from_attributes": True
     }
-
-
